@@ -1,0 +1,27 @@
+<?php 
+  session_start();
+  putenv("NLS_LANG=KOREAN_KOREA.UTF8");
+  $ORA_IP="1.1.1.1"; 
+  $ORA_SID="oracle"; 
+  $ORA_DB="oracle_db"; 
+  $ORA_DB_PASSWD="oracle_password"; 
+  $strDB="(DESCRIPTION = ( ADDRESS =(PROTOCOL = TCP)(HOST = ".$ORA_IP.")(PORT = 1521)) (CONNECT_DATA = (SID = ".$ORA_SID.")) )"; 
+
+  $connORA = @oci_connect($ORA_DB,$ORA_DB_PASSWD,$strDB);
+
+  if(!$connORA) {
+   $e = oci_error();   
+   echo "No Connection ".$e['message'];
+   exit;
+  }
+
+    $now_Login = $_SESSION ['login_user'];
+
+    if ($now_Login!=""){
+        $myusername = $_SESSION ['id']; 
+        $user_name = $_SESSION ['user_name'];
+        $level = $_SESSION ['level'];
+        $last_login = $_SESSION ['last_login'];
+        $access_fag = $_SESSION ['acess_flag'];
+    }
+?> 
