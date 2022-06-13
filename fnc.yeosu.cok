@@ -1,0 +1,179 @@
+<?php
+/*------------------------------------------------*/
+/* cokcok24 function definition code name : yeosu */
+/* decription : ramdom password cities of nations */
+/* by kyuho'choi                                  */
+/*------------------------------------------------*/
+
+Function RandomCode(){
+
+
+$NationCode = array (
+'Kiwi',
+'Pear',
+'Bird',
+'Duck',
+'Fish',
+'Frog',
+'Nine',
+'Five',
+'Coat',
+'Moon',
+'Star',
+'Rain',
+'Tree',
+'Cook',
+'Bean',
+'Corn',
+'Blue',
+'Gray',
+'Pink',
+'Ship',
+'Taxi',
+'Baby',
+'Back',
+'Bath',
+'Bear',
+'Book',
+'Cake',
+'Card',
+'City',
+'Coin',
+'Cute',
+'Deep',
+'Dear',
+'Desk',
+'Doll',
+'East',
+'Echo',
+'Farm',
+'Foot',
+'Grow',
+'Hate',
+'Help',
+'Jump',
+'Knee',
+'Lion',
+'Meat',
+'News',
+'Page',
+'Rest',
+'Side',
+'Team',
+'Very',
+'Wood',
+'Xmas',
+'Xmas',
+'Year',
+'Zero'
+);
+
+$SpecialCode = array(
+'!',
+'@',
+'#',
+'$',
+'%',
+'&',
+'*');
+
+$NumericCode =array(
+'1',
+'2',
+'3',
+'4',
+'5',
+'6',
+'7', 
+'8',
+'9',
+'0');
+
+
+return $NationCode[mt_rand(0, 79)].$SpecialCode[mt_rand(0, 6)].$NumericCode[mt_rand(0, 9)];
+}
+
+Function RandomSession($type){
+        $characters  = "0123456789"; 
+        $characters .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";  
+        $string_generated = $type;  
+          
+        $nmr_loops = 12;  
+        while ($nmr_loops--)  
+        {  
+            $string_generated .= $characters[mt_rand(0, strlen($characters))];  
+        }  
+        $string_generated = substr($string_generated,0,12);
+
+        $length = strlen($string_generated);
+
+        switch ($length){
+            case "9":
+                $string_generated .= "CKH"; break;
+            case "10":
+                $string_generated .= "KH";break;
+            case "11":
+                $string_generated .= "K";break;
+        }
+          
+        return $string_generated;  
+}
+
+Function Add_HCall_Process_Pri($move_service_no){
+  	global $connORA;
+    $sql_pri = "INSERT INTO MP_HCALL_PRIMARY 
+                (MOVE_SERVICE_NO, STATUS, USE_CALL,USE_RECVIEW, WHY_CHOICE, WHY_MEMO, EDIT_ID, REGI_DT) 
+                VALUES 
+                ('$move_service_no','0',NULL,NULL,NULL,NULL,'cokcokauto',NULL)";
+    $stid_pri = oci_parse($connORA, $sql_pri);
+    oci_execute ($stid_pri);  
+}
+
+Function Add_HCall_Process_Sec($move_service_no, $planer_no){
+	global $connORA;
+    $sql_sec = "INSERT INTO MP_HCALL_SECONDARY 
+                (MOVE_SERVICE_NO, PLANER_NO, DISABLED_PL, SATISFY_CALL, SATISFY_FTF_YN, SATISFY_FTF,MOVE_CONTRACT_YN, MOVE_WHY, MOVE_WHY_NOT, MOVE_SATISFY, MOVE_COMMENT)
+                VALUES 
+                ('$move_service_no','$planer_no',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
+    $stid_sec = oci_parse($connORA, $sql_sec);
+    oci_execute ($stid_sec);  
+}
+
+
+Function Add_Genie_CP($session_cd){
+	global $connORA;
+    
+    //세션코드 검색으로 기존에 지니등록된 코드 있나 매칭한다
+    $sql_ses = "SELECT * FROM MP_GENIE_CP WHERE S_REQ='$session_cd' ";
+	$stid_ses = oci_parse ( $connORA, $sql_ses );
+	$row_ses = oci_execute ( $stid_ses );
+	$nrows_cmr = oci_fetch_all ( $stid_ses, $row_ses );
+
+    if ($nrows_cmr!=0){ //세션코드과 연동되는 지니코드 존재)
+         return substr($row_ses['CP_CD'][0],0,4).'-'.substr($row_ses['CP_CD'][0],4,4).'-'.substr($row_ses['CP_CD'][0],8,4).'-'.substr($row_ses['CP_CD'][0],12,4);  //쿠폰코드 리턴
+    }else{        
+        //신규지니코드 여유분이 있는지 확인
+        $sql_remmain = "Select * From MP_GENIE_CP Where S_REQ is null";
+        $stid_remmain = oci_parse ( $connORA, $sql_remmain );
+        $row_remmain = oci_execute ( $stid_remmain );
+        $nrows_remmain = oci_fetch_all ( $stid_remmain);
+
+        if ($row_remmain['CNT'][0]==0){  //여유분 존재 -> 신규발급 등록
+            //세션코드에 맞는 신규 지니코드 발급
+            $sql = "Update MP_GENIE_CP Set S_REQ='$session_cd' Where s_req is null And rownum=1";
+            $stid = oci_parse($connORA, $sql);
+            oci_execute ($stid);  
+                $sql_ses = "SELECT * FROM MP_GENIE_CP WHERE S_REQ='$session_cd' ";
+                $stid_ses = oci_parse ( $connORA, $sql_ses );
+                $row_ses = oci_execute ( $stid_ses );
+                $nrows_cmr = oci_fetch_all ( $stid_ses, $row_ses );
+				//return $sql;
+                return substr($row_ses['CP_CD'][0],0,4).'-'.substr($row_ses['CP_CD'][0],4,4).'-'.substr($row_ses['CP_CD'][0],8,4).'-'.substr($row_ses['CP_CD'][0],12,4);  //쿠폰코드 리턴
+        }else{ //여유분 없음 -> 경고메시지 이후 끝.
+            return "지니코드 신규발급 수량이 마감되었습니다.";
+        }
+        
+    }
+
+
+}
