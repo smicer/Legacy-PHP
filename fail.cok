@@ -1,7 +1,7 @@
 <?php
-    $sitecode = "sitecode";				// NICE로부터 부여받은 사이트 코드
-    $sitepasswd = "sitepasswd";			// NICE로부터 부여받은 사이트 패스워드
-    $enc_data = $_POST["EncodeData"];		// 암호화된 결과 데이타
+    $sitecode = "sitecode";				
+    $sitepasswd = "sitepasswd";			
+    $enc_data = $_POST["EncodeData"];		
     $sReserved1 = $_POST['param_r1'];		
 	$sReserved2 = $_POST['param_r2'];
 	$sReserved3 = $_POST['param_r3'];
