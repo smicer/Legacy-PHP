@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<users> 
+	<user> 
+		<username>gandalf</username> 
+		<password>!c3</password> 
+		<userid>0</userid>
+		<mail>test@choikyuho.com</mail>
+	</user> 
+	<user> 
+		<username>Stefan0</username> 
+		<password>w1s3c</password> 
+		<userid>500</userid>
+		<mail>test@choikyuho.com</mail>
+	</user> 
+</users>
